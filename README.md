@@ -1,3 +1,7 @@
+## About
+
+Just LeL custom Bytebeat composer. Won't work with all beats cuz i am bad coder but it's work with most beats
+
 ## License
 
 All my code under The Unlicense, do whatever u want
