@@ -1,6 +1,10 @@
-## About
+## ビテベアツ
 
-Just LeL custom Bytebeat composer. Won't work with all beats cuz i am bad coder but it's work with most beats
+ビテベアツ　ー　is a LeL custom Bytebeat composer.
+
+## Problems
+
+Won't work with all beats cuz i am bad coder but it's work with most beats
 
 ## License
 
