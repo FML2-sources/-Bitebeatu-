@@ -14,4 +14,4 @@ and monokai.min.css...
 
 are NOT mine, and licensed under MIT
 
-Copyright (c) 2017-2023 Marijn Haverbeke and contribut
+Copyright (c) 2017-2023 Marijn Haverbeke and contributors

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ビテベアツ | Bytebeat</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/png">
+    <link rel="stylesheet" href="third-party/codemirror.min.css">
+    <link rel="stylesheet" href="third-party/monokai.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="third-party/codemirror.min.js"></script>
+    <script src="third-party/javascript.min.js"></script>
+    <script src="app.js" defer></script>
+</head>
+<body>
+<canvas id="waveCanvas"></canvas>
+<div class="toolbar">
+    <button id="playPauseBtn">▶</button>
+    <button id="resetBtn" class="value-badge">t = 0</button>
+    <button id="toggleCodeBtn">[ ] code</button>
+	<button id="compileBtn">Compile</button>
+	<button id="saveUrlBtn">Save URL</button>
+    <select id="modeSelect">
+        <option value="bytebeat">bytebeat</option>
+        <option value="signed">signed</option>
+        <option value="bitbeat">bitbeat</option>
+        <option value="floatbeat">floatbeat</option>
+    </select>
+    <select id="syntaxSelect">
+        <option value="infix">infix</option>
+        <option value="function">function</option>
+    </select>
+    <input type="number" id="sampleRateInput" value="8000" step="100" min="1" max="100000" style="width:90px">
+    <input type="number" id="fpsControl" value="30" step="5" min="0" max="1000" style="width:65px">
+    <span id="ch1Val" class="value-badge">L: 127</span>
+    <span id="ch2Val" class="value-badge">R: 127</span>
+    <select id="valueFormatSelect">
+        <option value="unsigned">Unsigned Integer (0-255)</option>
+        <option value="signed">Integer (-128-127)</option>
+        <option value="float">Float (-1.0000-1.0000)</option>
+    </select>
+    <button id="errorBtn" style="color: #FEDCBA; min-width: 40px;">。</button>
+</div>
+<div id="codeOverlay" class="code-overlay hidden">
+    <textarea id="codeEditor"></textarea>
+</div>
+</body>
+</html>

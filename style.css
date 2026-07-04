@@ -1,0 +1,94 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+body {
+    background: black;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 0;
+    background: black;
+}
+
+.toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: transparent;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px;
+    z-index: 20;
+    font-size: 12px;
+}
+
+button, select, input, .value-badge {
+    background: rgba(0,0,0,1);
+    border: 1px solid #333;
+    color: #fff;
+    padding: 4px 8px;
+    font-family: monospace;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 0;
+}
+
+.value-badge {
+    color: #fff;
+    min-width: 70px;
+    text-align: center;
+}
+
+.code-overlay {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    top: 60px;
+    z-index: 25;
+    background: transparent !important;
+    display: flex;
+    overflow: auto;
+}
+
+.CodeMirror {
+    height: 100%;
+    width: 100%;
+    background: transparent !important;
+    font-size: 13px;
+}
+
+.CodeMirror-gutters {
+    background: rgba(0,0,0,0.4) !important;
+    border-right: 1px solid #333;
+}
+
+.CodeMirror-linenumber {
+    color: #aaa;
+}
+
+.CodeMirror-cursor {
+    border-left: 1px solid #fff !important;
+}
+
+.CodeMirror-selected {
+    background: rgba(255,255,255,0.2) !important;
+}
+
+.hidden {
+    display: none;
+}
