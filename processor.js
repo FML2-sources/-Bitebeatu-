@@ -43,9 +43,9 @@ class BytebeatProcessor extends AudioWorkletProcessor {
                     let funcStr = e.data.func;
                     
                     if (this.syntax === 'infix') {
-                        this.userFunc = new Function('t', 'sampleRate', 'extra', 'const window = globalThis.window || {}; Object.getOwnPropertyNames(Math).forEach(prop => {globalThis[prop] = Math[prop];}); Object.getOwnPropertyNames(extra).forEach(prop => {globalThis[prop] = extra[prop]});  const int = floor; return (' + funcStr + ')');
+                        this.userFunc = new Function('t', 'sampleRate', 'extra', 'var window = globalThis.window || {}; Object.getOwnPropertyNames(Math).forEach(prop => {globalThis[prop] = Math[prop];}); Object.getOwnPropertyNames(extra).forEach(prop => {globalThis[prop] = extra[prop]});  const int = floor; return (' + funcStr + ')');
                     } else if (this.syntax === 'function') {
-                        this.userFunc = new Function('t', 'sampleRate', 'extra', 'const window = globalThis.window || {}; Object.getOwnPropertyNames(Math).forEach(prop => {globalThis[prop] = Math[prop];}); Object.getOwnPropertyNames(extra).forEach(prop => {globalThis[prop] = extra[prop]});  const int = floor;' + funcStr);
+                        this.userFunc = new Function('t', 'sampleRate', 'extra', 'var window = globalThis.window || {}; Object.getOwnPropertyNames(Math).forEach(prop => {globalThis[prop] = Math[prop];}); Object.getOwnPropertyNames(extra).forEach(prop => {globalThis[prop] = extra[prop]});  const int = floor;' + funcStr);
                     }
                 } catch(err) {
                     this.port.postMessage({
