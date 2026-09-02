@@ -22,8 +22,10 @@ All files in third-party folder, that are:
 codemirror.min.css,
 codemirror.min.js,
 javascript.min.js,
-and monokai.min.css...
+monokai.min.css
+and lzma_worker.js
 
 are NOT mine, and licensed under MIT
 
-Copyright (c) 2017-2023 Marijn Haverbeke and contributors
+Codemirror: © 2017-2023 Marijn Haverbeke and contributors
+LZMA-JS: © 2016 Nathan Rugg

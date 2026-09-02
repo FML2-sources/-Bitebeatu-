@@ -77,38 +77,69 @@ function copyErrorToClipboard() {
 
 function saveStateToURL() {
     let code = window.editor ? window.editor.getValue() : defaultCode;
+    
+    const exportSamples = parseInt(document.getElementById('exportSamplesInput').value) || 40000;
+    const exportStereo = document.getElementById('stereoCheckbox').checked;
+    
     let state = {
         c: code,
         m: currentMode,
         s: currentSyntax,
-        r: currentSampleRate
+        r: currentSampleRate,
+        e: {
+            n: exportSamples, 
+            st: exportStereo
+        }
     };
+    
     let json = JSON.stringify(state);
-    let base64 = btoa(encodeURIComponent(json));
+    let compressed = LZMA.compress(json, 1);
+    let base64 = btoa(String.fromCharCode.apply(null, new Uint8Array(compressed)));
     window.location.hash = base64;
 }
 
 function loadStateFromURL() {
     if (!window.location.hash || window.location.hash.length <= 1) return false;
+    
     try {
         let base64 = window.location.hash.substring(1);
-        let json = decodeURIComponent(atob(base64));
+        let binary = atob(base64);
+        let bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+        }
+        
+        let json = LZMA.decompress(bytes);
         let params = JSON.parse(json);
+        
         if (params.c && window.editor) {
             window.editor.setValue(params.c);
         }
-        if (params.m && document.getElementById('modeSelect').querySelector(`option[value="${params.m}"]`)) {
+        
+        if (params.m) {
             currentMode = params.m;
             document.getElementById('modeSelect').value = params.m;
         }
-        if (params.s && document.getElementById('syntaxSelect').querySelector(`option[value="${params.s}"]`)) {
+        
+        if (params.s) {
             currentSyntax = params.s;
             document.getElementById('syntaxSelect').value = params.s;
         }
+        
         if (params.r && !isNaN(params.r)) {
             currentSampleRate = parseInt(params.r);
             document.getElementById('sampleRateInput').value = currentSampleRate;
         }
+        
+        if (params.e) {
+            if (params.e.n && !isNaN(params.e.n)) {
+                document.getElementById('exportSamplesInput').value = params.e.n;
+            }
+            if (params.e.st !== undefined) {
+                document.getElementById('stereoCheckbox').checked = params.e.st;
+            }
+        }
+        
         return true;
     } catch(e) {
         console.warn("load error", e);
@@ -401,7 +432,7 @@ function saveWav(samples, sampleRate, bitsPerSample, isSigned) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `bytebeat_${bitsPerSample}bit_${Date.now()}.wav`;
+    a.download = `bytebeat_${bitsPerSample}bit_${Date.now().slice(-5)}.wav`;
     a.click();
     URL.revokeObjectURL(url);
 }
