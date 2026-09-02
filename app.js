@@ -1,5 +1,3 @@
-// Bytebeat audio visualizer - main application logic
-
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js');
@@ -151,7 +149,6 @@ function sendSensorData() {
     }
 }
 
-// Отправляем каждые 50мс (~20fps)
 setInterval(sendSensorData, 50);
 
 function pushVis(l, r) {
@@ -192,7 +189,6 @@ async function initAudio() {
     
     audioCtx = new AudioContext();
     
-    // Load worklet from external file
     await audioCtx.audioWorklet.addModule('processor.js');
     
     workletNode = new AudioWorkletNode(audioCtx, 'bytebeat-processor', {
@@ -209,7 +205,15 @@ async function initAudio() {
             updateTDisplay();
         } else if (e.data.type === 'error') { 
             updateErrorButton(e.data.message);
-        }
+        } else if (e.data.type === 'wavData') {
+	console.log("uhm")
+        saveWav(
+            e.data.samples, 
+            e.data.sampleRate, 
+            e.data.bitsPerSample, 
+            e.data.isSigned
+        );
+    }
     };
     
     workletNode.port.postMessage({
@@ -342,6 +346,66 @@ function drawWave() {
     drawRequest = requestAnimationFrame(drawWave);
 }
 
+function writeString(view, offset, string) {
+    for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+    }
+}
+
+function saveWav(samples, sampleRate, bitsPerSample, isSigned) {
+    console.log("combine")
+    const numChannels = 2;
+    const numSamples = samples.length;
+    const dataSize = numSamples * (bitsPerSample / 8);
+    const buffer = new ArrayBuffer(44 + dataSize);
+    const view = new DataView(buffer);
+    
+    writeString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + dataSize, true);
+    writeString(view, 8, 'WAVE');
+    writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * numChannels * (bitsPerSample / 8), true);
+    view.setUint16(32, numChannels * (bitsPerSample / 8), true);
+    view.setUint16(34, bitsPerSample, true);
+    writeString(view, 36, 'data');
+    view.setUint32(40, dataSize, true);
+    
+    let offset = 44;
+    for (let i = 0; i < numSamples; i++) {
+        let val = Math.max(-1, Math.min(1, samples[i]));
+        
+        if (bitsPerSample === 16) {
+            const int16 = val < 0 ? val * 0x8000 : val * 0x7FFF;
+            view.setInt16(offset, Math.round(int16), true);
+            offset += 2;
+        } else {
+            let byte;
+            if (isSigned) {
+                byte = Math.round(val * 127);
+                byte = Math.max(-128, Math.min(127, byte));
+                view.setInt8(offset, byte);
+            } else {
+                byte = Math.round((val + 1) / 2 * 255);
+                byte = Math.max(0, Math.min(255, byte));
+                view.setUint8(offset, byte);
+            }
+            offset += 1;
+        }
+    }
+    
+    const blob = new Blob([buffer], { type: 'audio/wav' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bytebeat_${bitsPerSample}bit_${Date.now()}.wav`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
 window.onload = async () => {
     resizeCanvas();
     
@@ -418,6 +482,19 @@ window.onload = async () => {
 	document.getElementById('saveUrlBtn').onclick = () => {
 		saveStateToURL();
 	};
+document.getElementById('exportWavBtn').onclick = () => {
+    const input = document.getElementById('exportSamplesInput');
+    const numSamples = parseInt(input.value) || 40000;
+    const stereo = document.getElementById('stereoCheckbox').checked;
+    
+    if (workletNode && workletNode.port) {
+        workletNode.port.postMessage({
+            type: 'exportWav',
+            numSamples: numSamples,
+            stereo: stereo
+        });
+    }
+};
     
     const srInput = document.getElementById('sampleRateInput');
     srInput.oninput = async () => {

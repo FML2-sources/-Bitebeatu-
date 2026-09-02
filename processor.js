@@ -1,5 +1,3 @@
-// Bytebeat AudioWorkletProcessor
-
 class BytebeatProcessor extends AudioWorkletProcessor {
     static get outputChannelCount() {
         return [2];
@@ -71,6 +69,70 @@ class BytebeatProcessor extends AudioWorkletProcessor {
     if (e.data.currentT !== undefined) {
         this.t = e.data.currentT;
     }
+} else if (e.data.type === 'exportWav') {
+    console.log('processor: exportWav started');
+    const samples = [];
+    const total = e.data.numSamples;
+    const startT = this.t;
+    const isStereo = e.data.stereo || false;
+    
+    let bitsPerSample = 8;
+    let isSigned = false;
+    
+    switch(this.mode) {
+        case 'floatbeat':
+            bitsPerSample = 16;
+            isSigned = true;
+            break;
+        case 'signed':
+            bitsPerSample = 8;
+            isSigned = true;
+            break;
+        case 'bytebeat':
+        case 'bitbeat':
+        default:
+            bitsPerSample = 8;
+            isSigned = false;
+            break;
+    }
+    
+    for (let i = 0; i < total; i++) {
+        const t = this.syntax === 'function' ? i / this.genRate : i + startT;
+        let result;
+        try {
+            result = this.userFunc(t, this.genRate, {});
+        } catch(e) {
+            result = 0;
+        }
+        
+        let leftRaw, rightRaw;
+        if (Array.isArray(result)) {
+            leftRaw = result[0] || 0;
+            rightRaw = result[1] !== undefined ? result[1] : result[0];
+        } else {
+            leftRaw = Number(result) || 0;
+            rightRaw = leftRaw;
+        }
+        
+        let left = this.remapSingle(leftRaw, this.mode);
+        let right = this.remapSingle(rightRaw, this.mode);
+        
+        if (!isStereo) {
+            const mono = (left + right) / 2;
+            samples.push(mono, mono);
+        } else {
+            samples.push(left, right);
+        }
+    }
+    
+    console.log('processor: sending wavData, samples:', samples.length);
+    this.port.postMessage({
+        type: 'wavData',
+        samples: samples,
+        sampleRate: this.genRate,
+        bitsPerSample: bitsPerSample,
+        isSigned: isSigned
+    });
 }
         };
     }
