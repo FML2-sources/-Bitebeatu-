@@ -432,7 +432,7 @@ function saveWav(samples, sampleRate, bitsPerSample, isSigned) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `bytebeat_${bitsPerSample}bit_${Date.now().slice(-5)}.wav`;
+    a.download = `bytebeat_${bitsPerSample}bit_${Date.now().toString().slice(-5)}.wav`;
     a.click();
     URL.revokeObjectURL(url);
 }
