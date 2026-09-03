@@ -6,10 +6,6 @@
 
 Won't work with all beats cuz i am bad coder but it's work with most beats
 
-## Link
-
-https://fml2-sources.github.io/-Bitebeatu-/
-
 ## License
 
 All my code under The Unlicense, do whatever u want
