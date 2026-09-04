@@ -4,6 +4,9 @@
 
 # Changelog
 
+## 1.4.3 — September 4, 2026
+- Visualization parameters now save to URL
+
 ## 1.4.2 — September 4, 2026
 - Crazy wave visualisation
 - No visualization mode

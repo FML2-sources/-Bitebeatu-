@@ -88,6 +88,9 @@ function saveStateToURL() {
     
     const exportSamples = parseInt(document.getElementById('exportSamplesInput').value) || 40000;
     const exportStereo = document.getElementById('stereoCheckbox').checked;
+
+    const visualMode = document.getElementById('visualModeSelect').value;
+    const bmpChannelsValue = document.getElementById('bmpChannelsInput').value;
     
     let state = {
         c: code,
@@ -97,6 +100,10 @@ function saveStateToURL() {
         e: {
             n: exportSamples, 
             st: exportStereo
+        },
+        v: {
+            mode: visualMode,
+            channels: bmpChannelsValue || "RGB"
         }
     };
     
@@ -145,6 +152,28 @@ function loadStateFromURL() {
             }
             if (params.e.st !== undefined) {
                 document.getElementById('stereoCheckbox').checked = params.e.st;
+            }
+        }
+        if (params.v) {
+            if (params.v.mode) {
+                currentVisualMode = params.v.mode;
+                document.getElementById('visualModeSelect').value = params.v.mode;
+                
+                if (params.v.mode === "bmp") {
+                    bmpNeedsReset = true;
+                    bmpChannelIndex = 0;
+                    const canvas = document.getElementById('waveCanvas');
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = "#000000";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            
+            if (params.v.channels) {
+                bmpChannels = params.v.channels.toUpperCase().trim();
+                document.getElementById('bmpChannelsInput').value = bmpChannels;
+                bmpNeedsReset = true;
+                bmpChannelIndex = 0;
             }
         }
         
