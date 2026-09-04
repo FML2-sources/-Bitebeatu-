@@ -653,6 +653,24 @@ if (hideAllBtn) {
     window.editor.on('changes', () => {
         // updateCode();
     });
+
+window.editor.setOption('extraKeys', {
+    'Enter': function(cm) {
+        if (cm.state.shiftKey) {
+            cm.replaceSelection('\n', 'end');
+            return;
+        }
+        updateCode();
+    }
+});
+
+window.editor.on('keydown', function(cm, e) {
+    cm.state.shiftKey = e.shiftKey;
+});
+
+window.editor.on('keyup', function(cm, e) {
+    cm.state.shiftKey = e.shiftKey;
+});
     
     await initAudio();
 	updateCode();

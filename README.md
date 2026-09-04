@@ -4,6 +4,9 @@
 
 # Changelog
 
+## 1.4.1 — September 4, 2026
+- Enter now compiles code
+
 ## 1.4 — September 4, 2026
 - Added new visualization
 - Can hide toolbar
