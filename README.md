@@ -4,6 +4,10 @@
 
 # Changelog
 
+## 1.4.2 — September 4, 2026
+- Crazy wave visualisation
+- No visualization mode
+
 ## 1.4.1 — September 4, 2026
 - Enter now compiles code
 

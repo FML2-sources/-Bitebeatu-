@@ -323,6 +323,10 @@ function drawWave() {
         drawRequest = requestAnimationFrame(drawWave);
         return;
     }
+    if (currentVisualMode === "none") {
+	drawRequest = requestAnimationFrame(drawWave);
+	return;
+    }
     const now = performance.now();
     const interval = 1000 / fps;
     if (now - lastDraw >= interval) {
@@ -331,8 +335,8 @@ function drawWave() {
         const w = canvas.width;
         const h = canvas.height;
         if (w === 0 || h === 0) return;
-        ctx.fillStyle = "#000000";
-        ctx.fillRect(0, 0, w, h);
+	if (currentVisualMode === "crazy") {} else
+	{ctx.clearRect(0, 0, w, h)};
         
         const step = Math.max(1, Math.floor(VIS_SIZE / (w * 1.2)));
         const centerY = h / 2;
