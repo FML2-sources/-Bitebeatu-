@@ -21,6 +21,14 @@ let currentCompass = 0;
 let currentWidth = window.innerWidth;
 let currentHeight = window.innerHeight;
 
+let currentVisualMode = "oscilloscope";
+let bmpChannels = "RGB";
+let bmpPixelX = 0;
+let bmpPixelY = 0;
+let bmpChannelIndex = 0;
+let bmpColor = { r: 0, g: 0, b: 0 };
+let bmpNeedsReset = true;
+
 const VIS_SIZE = 5513;
 let visL = new Array(VIS_SIZE).fill(0);
 let visR = new Array(VIS_SIZE).fill(0);
@@ -192,6 +200,10 @@ function pushVis(l, r) {
 
     document.getElementById('ch1Val').innerHTML = `L: ${formattedL}`;
     document.getElementById('ch2Val').innerHTML = `R: ${formattedR}`;
+    if (currentVisualMode === "bmp") {
+        processBMPValue(l);
+	processBMPValue(r);
+    }
 }
 
 function updateTDisplay() {
@@ -307,6 +319,10 @@ function resizeCanvas() {
 }
 
 function drawWave() {
+    if (currentVisualMode === "bmp") {
+        drawRequest = requestAnimationFrame(drawWave);
+        return;
+    }
     const now = performance.now();
     const interval = 1000 / fps;
     if (now - lastDraw >= interval) {
@@ -437,6 +453,58 @@ function saveWav(samples, sampleRate, bitsPerSample, isSigned) {
     URL.revokeObjectURL(url);
 }
 
+function processBMPValue(rawValue) {
+    let val = Math.floor((rawValue + 1) / 2 * 255);
+    val = Math.max(0, Math.min(255, val));
+    
+    if (bmpChannelIndex === 0) {
+        bmpColor = { r: 0, g: 0, b: 0 };
+    }
+    
+    let channel = bmpChannels[bmpChannelIndex] || '';
+    channel = channel.toUpperCase();
+    
+    if (channel === 'R') bmpColor.r = val;
+    else if (channel === 'G') bmpColor.g = val;
+    else if (channel === 'B') bmpColor.b = val;
+    else if (channel === 'W') {
+        bmpColor.r = val;
+        bmpColor.g = val;
+        bmpColor.b = val;
+    }
+    
+    bmpChannelIndex++;
+    
+    if (bmpChannelIndex >= bmpChannels.length) {
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        
+        if (bmpNeedsReset) {
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(0, 0, w, h);
+            bmpPixelX = 0;
+            bmpPixelY = 0;
+            bmpNeedsReset = false;
+        }
+        
+        ctx.fillStyle = `rgb(${bmpColor.r}, ${bmpColor.g}, ${bmpColor.b})`;
+        ctx.fillRect(bmpPixelX, bmpPixelY, 1, 1);
+        
+        bmpPixelX++;
+        if (bmpPixelX >= w) {
+            bmpPixelX = 0;
+            bmpPixelY++;
+            if (bmpPixelY >= h) {
+                bmpPixelY = 0;
+            }
+        }
+        
+        bmpChannelIndex = 0;
+    }
+}
+
 window.onload = async () => {
     resizeCanvas();
     
@@ -526,6 +594,25 @@ document.getElementById('exportWavBtn').onclick = () => {
         });
     }
 };
+
+document.getElementById('visualModeSelect').onchange = (e) => {
+    currentVisualMode = e.target.value;
+    if (currentVisualMode === "bmp") {
+        bmpNeedsReset = true;
+        bmpChannelIndex = 0;
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+};
+
+document.getElementById('bmpChannelsInput').oninput = (e) => {
+    bmpChannels = e.target.value.toUpperCase().trim();
+    if (!bmpChannels) bmpChannels = "RGB";
+    bmpNeedsReset = true;
+    bmpChannelIndex = 0;
+};
     
     const srInput = document.getElementById('sampleRateInput');
     srInput.oninput = async () => {
@@ -537,6 +624,31 @@ document.getElementById('exportWavBtn').onclick = () => {
 			});
 		}
     };
+
+const showAllBtn = document.getElementById('showAllBtn');
+const hideAllBtn = document.getElementById('hideAllBtn');
+const toolbar = document.querySelector('.toolbar');
+const codeOverlay = document.getElementById('codeOverlay');
+
+function hideAllUI() {
+    if (toolbar) toolbar.style.display = 'none';
+    if (codeOverlay) codeOverlay.classList.add('hidden');
+    if (showAllBtn) showAllBtn.style.display = 'inline-block';
+}
+
+function showAllUI() {
+    if (toolbar) toolbar.style.display = '';
+    if (codeOverlay) codeOverlay.classList.remove('hidden');
+    if (showAllBtn) showAllBtn.style.display = 'none';
+}
+
+if (showAllBtn) {
+    showAllBtn.addEventListener('click', showAllUI);
+}
+
+if (hideAllBtn) {
+    hideAllBtn.addEventListener('click', hideAllUI);
+}
     
     window.editor.on('changes', () => {
         // updateCode();
