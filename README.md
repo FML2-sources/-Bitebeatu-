@@ -2,9 +2,27 @@
 
 ビテベアツ　ー　is a LeL custom Bytebeat composer.
 
-## Problems
+# Changelog
 
-Won't work with all beats cuz i am bad coder but it's work with most beats
+## 1.4 — September 4, 2026
+- Added new visualization
+- Can hide toolbar
+
+## 1.3.2 — September 2, 2026
+- Fixed export
+
+## 1.3.1 — September 2, 2026
+- URL is now shorter
+- Export was broken, but its name is now shorter
+
+## 1.2 — September 2, 2026
+- Can export to files
+
+## 1.1 — Unknown date
+- Phantom window now var
+
+## 1.0 — July 4, 2026
+- Birth 🌱
 
 ## License
 
