@@ -283,7 +283,8 @@ async function initAudio() {
             e.data.samples, 
             e.data.sampleRate, 
             e.data.bitsPerSample, 
-            e.data.isSigned
+            e.data.isSigned,
+            e.data.stereo
         );
     }
     };
@@ -432,9 +433,9 @@ function writeString(view, offset, string) {
     }
 }
 
-function saveWav(samples, sampleRate, bitsPerSample, isSigned) {
+function saveWav(samples, sampleRate, bitsPerSample, isSigned, stereo) {
     console.log("combine")
-    const numChannels = 2;
+    const numChannels = stereo ? 2 : 1;
     const numSamples = samples.length;
     const dataSize = numSamples * (bitsPerSample / 8);
     const buffer = new ArrayBuffer(44 + dataSize);

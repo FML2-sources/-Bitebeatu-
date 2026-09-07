@@ -70,7 +70,7 @@ class BytebeatProcessor extends AudioWorkletProcessor {
         this.t = e.data.currentT;
     }
 } else if (e.data.type === 'exportWav') {
-    console.log('processor: exportWav started');
+    console.log('uh');
     const samples = [];
     const total = e.data.numSamples;
     const startT = this.t;
@@ -105,33 +105,21 @@ class BytebeatProcessor extends AudioWorkletProcessor {
             result = 0;
         }
         
-        let leftRaw, rightRaw;
         if (Array.isArray(result)) {
-            leftRaw = result[0] || 0;
-            rightRaw = result[1] !== undefined ? result[1] : result[0];
+            for (let j = 0; j < result.length; j++) {
+                samples.push(this.remapSingle(result[j], this.mode));
+            }
         } else {
-            leftRaw = Number(result) || 0;
-            rightRaw = leftRaw;
-        }
-        
-        let left = this.remapSingle(leftRaw, this.mode);
-        let right = this.remapSingle(rightRaw, this.mode);
-        
-        if (!isStereo) {
-            const mono = (left + right) / 2;
-            samples.push(mono, mono);
-        } else {
-            samples.push(left, right);
+            samples.push(this.remapSingle(result, this.mode));
         }
     }
-    
-    console.log('processor: sending wavData, samples:', samples.length);
     this.port.postMessage({
         type: 'wavData',
         samples: samples,
         sampleRate: this.genRate,
         bitsPerSample: bitsPerSample,
-        isSigned: isSigned
+        isSigned: isSigned,
+	stereo: isStereo
     });
 }
         };
