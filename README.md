@@ -4,6 +4,9 @@
 
 # Changelog
 
+## 1.4.4 — September 7, 2026
+- Enter to compile parameter
+
 ## 1.4.3 — September 4, 2026
 - Visualization parameters now save to URL
 
