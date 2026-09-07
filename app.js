@@ -689,7 +689,7 @@ if (hideAllBtn) {
 
 window.editor.setOption('extraKeys', {
     'Enter': function(cm) {
-        if (cm.state.shiftKey) {
+        if (cm.state.shiftKey || !document.getElementById('eToComp').checked) {
             cm.replaceSelection('\n', 'end');
             return;
         }
