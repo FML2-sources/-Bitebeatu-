@@ -4,6 +4,11 @@
 
 # Changelog
 
+## 1.4.6 - September 8, 2026
+- BMP (audio rasterisation) can be in mono
+- BMP (audio rasterisation) better perfomance
+- BMP (audio rasterisation) controlled by framerate setting
+
 ## 1.4.5 -September 7, 2026
 - Export stereo bugfixes
 
