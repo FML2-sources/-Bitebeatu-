@@ -28,6 +28,7 @@ let bmpPixelY = 0;
 let bmpChannelIndex = 0;
 let bmpColor = { r: 0, g: 0, b: 0 };
 let bmpNeedsReset = true;
+let bmpSampleBuffer = [];
 
 const VIS_SIZE = 5513;
 let visL = new Array(VIS_SIZE).fill(0);
@@ -230,8 +231,10 @@ function pushVis(l, r) {
     document.getElementById('ch1Val').innerHTML = `L: ${formattedL}`;
     document.getElementById('ch2Val').innerHTML = `R: ${formattedR}`;
     if (currentVisualMode === "bmp") {
-        processBMPValue(l);
-	processBMPValue(r);
+	processBMPValue(l);
+	if !(isMono()){
+		processBMPValue(r);
+	}
     }
 }
 
@@ -349,7 +352,13 @@ function resizeCanvas() {
 }
 
 function drawWave() {
+    const now = performance.now();
+    const interval = 1000 / fps;
     if (currentVisualMode === "bmp") {
+        if (now - lastDraw >= interval) {
+            lastDraw = now;
+            drawBMPFrame();
+        }
         drawRequest = requestAnimationFrame(drawWave);
         return;
     }
@@ -357,8 +366,6 @@ function drawWave() {
 	drawRequest = requestAnimationFrame(drawWave);
 	return;
     }
-    const now = performance.now();
-    const interval = 1000 / fps;
     if (now - lastDraw >= interval) {
         lastDraw = now;
         if (!ctx) return;
@@ -488,55 +495,66 @@ function saveWav(samples, sampleRate, bitsPerSample, isSigned, stereo) {
 }
 
 function processBMPValue(rawValue) {
-    let val = Math.floor((rawValue + 1) / 2 * 255);
-    val = Math.max(0, Math.min(255, val));
+    bmpSampleBuffer.push(rawValue);
+}
+
+function drawBMPFrame() {
+    if (bmpSampleBuffer.length === 0) return;
     
-    if (bmpChannelIndex === 0) {
-        bmpColor = { r: 0, g: 0, b: 0 };
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    
+    if (bmpNeedsReset) {
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, w, h);
+        bmpPixelX = 0;
+        bmpPixelY = 0;
+        bmpNeedsReset = false;
     }
-    
-    let channel = bmpChannels[bmpChannelIndex] || '';
-    channel = channel.toUpperCase();
-    
-    if (channel === 'R') bmpColor.r = val;
-    else if (channel === 'G') bmpColor.g = val;
-    else if (channel === 'B') bmpColor.b = val;
-    else if (channel === 'W') {
-        bmpColor.r = val;
-        bmpColor.g = val;
-        bmpColor.b = val;
-    }
-    
-    bmpChannelIndex++;
-    
-    if (bmpChannelIndex >= bmpChannels.length) {
-        const canvas = document.getElementById('waveCanvas');
-        const ctx = canvas.getContext('2d');
-        const w = canvas.width;
-        const h = canvas.height;
+
+    for (let i = 0; i < bmpSampleBuffer.length; i++) {
+        let rawValue = bmpSampleBuffer[i];
+        let val = Math.floor((rawValue + 1) / 2 * 255);
+        val = Math.max(0, Math.min(255, val));
         
-        if (bmpNeedsReset) {
-            ctx.fillStyle = "#000000";
-            ctx.fillRect(0, 0, w, h);
-            bmpPixelX = 0;
-            bmpPixelY = 0;
-            bmpNeedsReset = false;
+        if (bmpChannelIndex === 0) {
+            bmpColor = { r: 0, g: 0, b: 0 };
         }
         
-        ctx.fillStyle = `rgb(${bmpColor.r}, ${bmpColor.g}, ${bmpColor.b})`;
-        ctx.fillRect(bmpPixelX, bmpPixelY, 1, 1);
+        let channel = bmpChannels[bmpChannelIndex] || '';
+        channel = channel.toUpperCase();
         
-        bmpPixelX++;
-        if (bmpPixelX >= w) {
-            bmpPixelX = 0;
-            bmpPixelY++;
-            if (bmpPixelY >= h) {
-                bmpPixelY = 0;
+        if (channel === 'R') bmpColor.r = val;
+        else if (channel === 'G') bmpColor.g = val;
+        else if (channel === 'B') bmpColor.b = val;
+        else if (channel === 'W') {
+            bmpColor.r = val;
+            bmpColor.g = val;
+            bmpColor.b = val;
+        }
+        
+        bmpChannelIndex++;
+        
+        if (bmpChannelIndex >= bmpChannels.length) {
+            ctx.fillStyle = `rgb(${bmpColor.r}, ${bmpColor.g}, ${bmpColor.b})`;
+            ctx.fillRect(bmpPixelX, bmpPixelY, 1, 1);
+            
+            bmpPixelX++;
+            if (bmpPixelX >= w) {
+                bmpPixelX = 0;
+                bmpPixelY++;
+                if (bmpPixelY >= h) {
+                    bmpPixelY = 0;
+                }
             }
+            
+            bmpChannelIndex = 0;
         }
-        
-        bmpChannelIndex = 0;
     }
+
+    bmpSampleBuffer = [];
 }
 
 window.onload = async () => {
