@@ -232,7 +232,7 @@ function pushVis(l, r) {
     document.getElementById('ch2Val').innerHTML = `R: ${formattedR}`;
     if (currentVisualMode === "bmp") {
 	processBMPValue(l);
-	if !(isMono()){
+	if (!isMono()){
 		processBMPValue(r);
 	}
     }
