@@ -2,6 +2,9 @@
 
 # Changelog
 
+## 1.4.8 - September 12, 2026
+- Show button doesn't show code
+
 ## 1.4.7 - September 9, 2026
 - Now it's work
 
