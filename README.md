@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 1.5 - September 12, 2026
+- Code background
+- Show button transparency
+- Auto checked enter to compile
+- fixed checkbox color
+
 ## 1.4.8 - September 12, 2026
 - Show button doesn't show code
 
