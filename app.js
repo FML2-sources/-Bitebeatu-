@@ -690,7 +690,7 @@ function hideAllUI() {
 
 function showAllUI() {
     if (toolbar) toolbar.style.display = '';
-    if (codeOverlay) codeOverlay.classList.remove('hidden');
+    //if (codeOverlay) codeOverlay.classList.remove('hidden');
     if (showAllBtn) showAllBtn.style.display = 'none';
 }
 
